@@ -101,7 +101,7 @@ CFLAGS_MCU_m33 = $(CFLAGS_CORTEX_M) -mcpu=cortex-m33 -march=armv8-m.main+dsp -mc
 
 CFLAGS_MCU_m4 = $(CFLAGS_CORTEX_M) -mtune=cortex-m4 -mcpu=cortex-m4 -mfpu=fpv4-sp-d16 -mfloat-abi=hard
 
-CFLAGS_MCU_m0 = $(CFLAGS_CORTEX_M) -fshort-enums -mtune=cortex-m0 -mcpu=cortex-m0 -mfloat-abi=soft
+CFLAGS_MCU_m0 = $(CFLAGS_CORTEX_M) -fshort-enums -mtune=cortex-m0 -mcpu=cortex-m0 -mfloat-abi=soft -fno-builtin
 
 LTO ?= 1
 ifeq ($(LTO),1)
@@ -266,6 +266,7 @@ SRC_C += $(addprefix lib/tinyusb/src/,\
 	class/cdc/cdc_device.c \
 	tusb.c \
 	portable/nordic/nrf5x/dcd_nrf5x.c \
+	portable/nordic/nrf5x/hal_nrf5x.c \
 	)
 endif
 

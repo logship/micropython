@@ -52,8 +52,6 @@
 #include "i2c.h"
 #include "adc.h"
 #include "rtcounter.h"
-#include "mphalport.h"
-
 #if MICROPY_PY_MACHINE_HW_PWM
 #include "pwm.h"
 #endif
@@ -107,15 +105,15 @@ soft_reset:
     rtc1_init_time_ticks();
     #endif
 
-    led_init();
+    //led_init();
 
-    led_state(1, 1); // MICROPY_HW_LED_1 aka MICROPY_HW_LED_RED
+    //led_state(1, 1); // MICROPY_HW_LED_1 aka MICROPY_HW_LED_RED
 
     mp_stack_set_top(&_ram_end);
 
     // Stack limit should be less than real stack size, so we have a chance
     // to recover from limit hit.  (Limit is measured in bytes.)
-    mp_stack_set_limit((char *)&_ram_end - (char *)&_heap_end - 400);
+    mp_stack_set_limit((char*)&_ram_end - (char*)&_heap_end - 400);
 
     machine_init();
 
@@ -126,38 +124,40 @@ soft_reset:
     mp_obj_list_append(mp_sys_path, MP_OBJ_NEW_QSTR(MP_QSTR_)); // current dir (or base dir of the script)
     mp_obj_list_init(mp_sys_argv, 0);
 
+    pyb_set_repl_info(MP_OBJ_NEW_SMALL_INT(0));
+
     readline_init0();
 
 
-    #if MICROPY_PY_MACHINE_HW_SPI
-    spi_init0();
-    #endif
+#if MICROPY_PY_MACHINE_HW_SPI
+    //spi_init0();
+#endif
 
-    #if MICROPY_PY_MACHINE_I2C
+#if MICROPY_PY_MACHINE_I2C
     i2c_init0();
-    #endif
+#endif
 
-    #if MICROPY_PY_MACHINE_ADC
+#if MICROPY_PY_MACHINE_ADC
     adc_init0();
-    #endif
+#endif
 
-    #if MICROPY_PY_MACHINE_HW_PWM
+#if MICROPY_PY_MACHINE_HW_PWM
     pwm_init0();
-    #endif
+#endif
 
-    #if MICROPY_PY_MACHINE_RTCOUNTER
+#if MICROPY_PY_MACHINE_RTCOUNTER
     rtc_init0();
-    #endif
+#endif
 
-    #if MICROPY_PY_MACHINE_TIMER
+#if MICROPY_PY_MACHINE_TIMER
     timer_init0();
-    #endif
+#endif
 
-    #if MICROPY_PY_MACHINE_UART
+#if MICROPY_PY_MACHINE_UART
     uart_init0();
-    #endif
+#endif
 
-    #if (MICROPY_PY_BLE_NUS == 0) && (MICROPY_HW_USB_CDC == 0)
+#if (MICROPY_PY_BLE_NUS == 0) && (MICROPY_HW_USB_CDC == 0)
     {
         mp_obj_t args[2] = {
             MP_OBJ_NEW_SMALL_INT(0),
@@ -165,15 +165,15 @@ soft_reset:
         };
         MP_STATE_PORT(board_stdio_uart) = machine_hard_uart_type.make_new((mp_obj_t)&machine_hard_uart_type, MP_ARRAY_SIZE(args), 0, args);
     }
-    #endif
+#endif
 
-    pin_init0();
+pin_init0();
 
-    #if MICROPY_MBFS
+#if MICROPY_MBFS
     microbit_filesystem_init();
-    #endif
+#endif
 
-    #if MICROPY_HW_HAS_SDCARD
+#if MICROPY_HW_HAS_SDCARD
     // if an SD card is present then mount it on /sd/
     if (sdcard_is_present()) {
         // create vfs object
@@ -202,36 +202,36 @@ soft_reset:
             // use SD card as current directory
             f_chdrive("/sd");
         }
-    no_mem_for_sd:;
+        no_mem_for_sd:;
     }
-    #endif
+#endif
 
     // Main script is finished, so now go into REPL mode.
     // The REPL mode can change, or it can request a soft reset.
     int ret_code = 0;
 
-    #if MICROPY_PY_BLE_NUS
+#if MICROPY_PY_BLE_NUS
     ble_uart_init0();
-    #endif
+#endif
 
-    #if MICROPY_PY_MACHINE_SOFT_PWM
-    ticker_init0();
-    softpwm_init0();
-    #endif
+#if MICROPY_PY_MACHINE_SOFT_PWM
+    //ticker_init0();
+    //softpwm_init0();
+#endif
 
-    #if MICROPY_PY_MUSIC
-    microbit_music_init0();
-    #endif
-    #if BOARD_SPECIFIC_MODULES
+#if MICROPY_PY_MUSIC
+    //microbit_music_init0();
+#endif
+#if BOARD_SPECIFIC_MODULES
     board_modules_init0();
-    #endif
+#endif
 
-    #if MICROPY_PY_MACHINE_SOFT_PWM
-    ticker_start();
-    pwm_start();
-    #endif
+#if MICROPY_PY_MACHINE_SOFT_PWM
+    //ticker_start();
+    //pwm_start();
+#endif
 
-    led_state(1, 0);
+//led_state(1, 0);
 
     #if MICROPY_VFS || MICROPY_MBFS || MICROPY_MODULE_FROZEN
     // run boot.py and main.py if they exist.

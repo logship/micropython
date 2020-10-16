@@ -32,23 +32,22 @@
 #endif
 
 const char nrf5_help_text[] =
-    "Welcome to MicroPython!\n"
-    "\n"
-    "For online help please visit http://micropython.org/help/.\n"
-    "\n"
-    "Quick overview of commands for the board:\n"
-#if MICROPY_HW_HAS_LED
-    "  board.LED(n)    -- create an LED object for LED n (n=" HELP_TEXT_BOARD_LED ")\n"
-    "\n"
-#endif
+"Welcome to MicroPython! It is the first try running python on Rak5010! \n"
+"\n"
+"You do not need to do anything and just finish your app.py. Then push it and init.py we provided with:\n"
+"\n"
+"ampy --port /dev/ttyACM0(my sys is linux, if in windows, it is COMXX) put init.py\n"
+"ampy --port /dev/ttyACM0(my sys is linux, if in windows, it is COMXX) put rui.py\n"
+"\n"
+"Quick overview of commands for the board:\n"
 #if BLUETOOTH_SD
-    HELP_TEXT_SD
+HELP_TEXT_SD
 #endif
-    "Control commands:\n"
-    "  CTRL-A        -- on a blank line, enter raw REPL mode\n"
-    "  CTRL-B        -- on a blank line, enter normal REPL mode\n"
-    "  CTRL-D        -- on a blank line, do a soft reset of the board\n"
-    "  CTRL-E        -- on a blank line, enter paste mode\n"
-    "\n"
-    "For further help on a specific object, type help(obj)\n"
+"Control commands:\n"
+"  CTRL-A        -- on a blank line, enter raw REPL mode\n"
+"  CTRL-B        -- on a blank line, enter normal REPL mode\n"
+"  CTRL-D        -- on a blank line, do a soft reset of the board\n"
+"  CTRL-E        -- on a blank line, enter paste mode\n"
+"\n"
+"For further help on a specific object, type help(obj)\n"
 ;
