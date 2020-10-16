@@ -31,6 +31,11 @@
 #include "ringbuffer.h"
 #include "mphalport.h"
 #include "lib/utils/interrupt_char.h"
+#include "py/runtime.h"
+
+#if MICROPY_PY_SYS_STDFILES
+#include "py/stream.h"
+#endif
 
 #if MICROPY_PY_BLE_NUS
 
@@ -92,7 +97,6 @@ static ubluepy_advertise_data_t m_adv_data_uart_service;
 static ubluepy_advertise_data_t m_adv_data_eddystone_url;
 #endif // BLUETOOTH_WEBBLUETOOTH_REPL
 
-#if 0
 int mp_hal_stdin_rx_chr(void) {
     while (!ble_uart_enabled()) {
         // wait for connection
@@ -132,10 +136,38 @@ void mp_hal_stdout_tx_strn(const char *str, size_t len) {
     }
 }
 
+void ble_uart_tx_char(char c) {
+    // Not connected: drop output
+    if (!ble_uart_enabled()) return;
+
+    ubluepy_characteristic_obj_t * p_char = &ble_uart_char_tx;
+
+    ble_drv_attr_s_notify(p_char->p_service->p_periph->conn_handle,
+                          p_char->handle,
+                          1,
+                          (uint8_t *)&c);
+}
+
 void mp_hal_stdout_tx_strn_cooked(const char *str, mp_uint_t len) {
-    mp_hal_stdout_tx_strn(str, len);
+    for (const char *top = str + len; str < top; str++) {
+        if (*str == '\n') {
+            ble_uart_tx_char('\r');
+        }
+        ble_uart_tx_char(*str);
+    }
+}
+
+#if MICROPY_PY_SYS_STDFILES
+uintptr_t mp_hal_stdio_poll(uintptr_t poll_flags) {
+    uintptr_t ret = 0;
+    if ((poll_flags & MP_STREAM_POLL_RD) && ble_uart_enabled()
+        && !isBufferEmpty(mp_rx_ring_buffer)) {
+        ret |= MP_STREAM_POLL_RD;
+    }
+    return ret;
 }
 #endif
+
 STATIC void gap_event_handler(mp_obj_t self_in, uint16_t event_id, uint16_t conn_handle, uint16_t length, uint8_t * data) {
     ubluepy_peripheral_obj_t * self = MP_OBJ_TO_PTR(self_in);
 
@@ -213,7 +245,7 @@ void ble_uart_init0(void) {
 
     ble_uart_peripheral.conn_handle = 0xFFFF;
 
-    char device_name[] = "Rak5010";
+    static char device_name[] = "mpus";
 
     mp_obj_t service_list = mp_obj_new_list(0, NULL);
     mp_obj_list_append(service_list, MP_OBJ_FROM_PTR(&ble_uart_service));
